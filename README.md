@@ -43,7 +43,7 @@ I'm interested in internships, freelance projects, and opportunities where I can
 
 ## 🔗 Connect With Me
 
-- LinkedIn: [Add your LinkedIn profile link here]
+- LinkedIn: www.linkedin.com/in/krushna-khetia-562579230
 
 ---
 
