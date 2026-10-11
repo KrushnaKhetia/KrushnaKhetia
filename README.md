@@ -9,8 +9,6 @@
 <br><br>
 
 <a href="https://www.linkedin.com/in/krushna-khetia-562579230/"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
-<br><br>
-<img src="https://komarev.com/ghpvc/?username=KrushnaKhetia&style=flat&color=aa9bef&label=profile+views" alt="Profile views">
 
 </div>
 
