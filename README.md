@@ -1,12 +1,16 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:6C63FF,100:00C9A7&height=190&section=header&text=Krushna%20Khetia&fontSize=48&fontColor=ffffff&animation=fadeIn&fontAlignY=36" alt="Krushna Khetia profile banner" />
+<br>
 
-### B.Tech IT Student · Aspiring Software Developer
+<a href="https://github.com/KrushnaKhetia">
+  <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=26&duration=2600&pause=900&color=AA9BEF&center=true&vCenter=true&width=880&lines=Krushna+-+B.Tech+IT+Student;Java+%26+SQL+%7C+Learning+Python;Building+practical+software+projects" alt="Animated profile banner">
+</a>
 
-Building practical projects and growing my skills in software development.
+<br><br>
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/krushna-khetia-562579230)
+<a href="https://www.linkedin.com/in/krushna-khetia-562579230/"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
+<br><br>
+<img src="https://komarev.com/ghpvc/?username=KrushnaKhetia&style=flat&color=aa9bef&label=profile+views" alt="Profile views">
 
 </div>
 
