@@ -1,6 +1,8 @@
 <div align="center">
 
-<br>
+<img src="./assets/profile.sh-live.gif" width="100%" alt="profile.sh --live">
+
+<br><br>
 
 <a href="https://github.com/KrushnaKhetia">
   <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=26&duration=2600&pause=900&color=AA9BEF&center=true&vCenter=true&width=880&lines=Krushna+-+B.Tech+IT+Student;Java+%26+SQL+%7C+Learning+Python;Building+practical+software+projects" alt="Animated profile banner">
