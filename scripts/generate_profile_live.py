@@ -75,7 +75,7 @@ def render(theme_name: str, avatar_uri: str) -> str:
 <text x="49" y="111" fill="{t['chrome']}" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="13" font-weight="700" letter-spacing="1.2">VISUAL.MAP</text>
 <text x="438" y="111" text-anchor="end" fill="{t['muted']}" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="11">PROFILE / 1-BIT</text>
 <path d="M49 141h12M49 141v12M439 141h-12M439 141v12M49 539h12M49 539v-12M439 539h-12M439 539v-12" fill="none" stroke="{t['chrome']}" opacity=".55"/>
-<g clip-path="url(#photo)" shape-rendering="crispEdges"><path d="{portrait}" fill="none" stroke="{t['portrait']}" stroke-width="1"/><g>{travellers}</g><rect x="74" y="154" width="340" height="340" fill="url(#scan)" opacity=".25"/>
+<g clip-path="url(#photo)" shape-rendering="crispEdges"><path d="{portrait}" fill="none" stroke="{t['portrait']}" stroke-width="1"/><g>{travellers}</g>
   <rect x="74" y="154" width="340" height="340" fill="none" stroke="{t['line']}"/></g>
 <text x="58" y="551" fill="{t['muted']}" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="10">PROFILE IMAGE · KRUSHNAKHETIA</text>
 <rect x="474" y="88" width="672" height="472" rx="6" fill="{t['panel2']}" stroke="{t['line']}"/><path d="M474 124H1146" stroke="{t['line']}"/>
@@ -102,12 +102,14 @@ def portrait_art(theme: str, color: str) -> tuple[str, str]:
     from PIL import ImageDraw
 
     image = Image.open(AVATAR).convert("RGB")
-    side = min(image.size)
-    left = (image.width - side) // 2
-    top = (image.height - side) // 2
-    image = image.crop((left, top, left + side, top + side)).resize((300, 300), Image.Resampling.LANCZOS)
-    canvas = Image.new("L", (300, 340), 0)
-    canvas.paste(ImageOps.grayscale(image), (0, 20))
+    # Frame the person tightly so the snowy scenery does not turn into a large
+    # square field of dither dots like the uncropped account avatar.
+    image = image.crop((65, 65, 395, 439)).resize((300, 340), Image.Resampling.LANCZOS)
+    rgb = np.asarray(image, dtype=np.float32) / 255.0
+    gray = np.asarray(ImageOps.grayscale(image), dtype=np.float32) / 255.0
+    saturation = rgb.max(axis=2) - rgb.min(axis=2)
+    visible = (gray < .74) | (saturation > .17)
+    canvas = gray.copy()
     values = np.asarray(canvas, dtype=np.float32) / 255.0
     dots = np.zeros(values.shape, dtype=bool)
     for y in range(values.shape[0]):
@@ -139,6 +141,7 @@ def portrait_art(theme: str, color: str) -> tuple[str, str]:
                 start = x
             previous = x
         paths.append(f"M{74 + start} {154 + y}h{previous - start + 1}")
+    dots &= visible
     source = np.column_stack(np.where(dots)[::-1]).astype(np.float32)
     count = min(900, len(source))
     source = source[np.linspace(0, len(source) - 1, count, dtype=int)]
