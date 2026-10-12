@@ -222,7 +222,10 @@ def portrait_art(theme: str, color: str) -> tuple[str, str]:
             for x, y in nodes:
                 draw.ellipse((x - 19, y - 19, x + 19, y + 19), fill=255)
         cloud = np.column_stack(np.where(np.asarray(mask) > 0)[::-1]).astype(np.float32)
-        cloud = np.column_stack((89 + cloud[:, 0] * .675 - 74, 188 + cloud[:, 1] * .675 - 154))
+        # Match the reference banner's logo coordinates inside the portrait
+        # frame. These are already banner-space origins, so don't subtract the
+        # portrait frame origin a second time.
+        cloud = np.column_stack((89 + cloud[:, 0] * .675, 188 + cloud[:, 1] * .675))
         chosen = cloud[rng.choice(len(cloud), count, replace=len(cloud) < count)]
         chosen = chosen[np.lexsort((chosen[:, 0], chosen[:, 1]))]
         targets.append(chosen)
