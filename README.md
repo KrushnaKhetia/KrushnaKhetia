@@ -1,9 +1,9 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/profile-live-dark.svg?v=8">
-  <source media="(prefers-color-scheme: light)" srcset="assets/profile-live-light.svg?v=8">
-  <img src="assets/profile-live-dark.svg?v=8" width="100%" alt="profile.sh --live">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/profile-live-dark.svg?v=9">
+  <source media="(prefers-color-scheme: light)" srcset="assets/profile-live-light.svg?v=9">
+  <img src="assets/profile-live-dark.svg?v=9" width="100%" alt="profile.sh --live">
 </picture>
 
 <br><br>
@@ -15,6 +15,8 @@
 <br><br>
 
 <a href="https://www.linkedin.com/in/krushna-khetia-562579230/"><img src="https://img.shields.io/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"></a>
+<a href="https://www.instagram.com/krushna._.99/"><img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram"></a>
+<a href="mailto:krushna.builds@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"></a>
 
 </div>
 

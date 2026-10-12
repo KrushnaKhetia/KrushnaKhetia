@@ -21,7 +21,7 @@ ROWS = [
     ("Core.Backend", "Java · Python"),
     ("Core.Database", "MySQL · DBMS"),
     ("Core.Tools", "Git · GitHub · VS Code"),
-    ("Grid.Mail", "—"),
+    ("Grid.Mail", "krushna.builds@gmail.com"),
     ("Grid.LinkedIn", "/in/krushna-khetia-562579230"),
     ("Grid.GitHub", "KrushnaKhetia"),
     ("Grid.Focus", "Practical Software Projects"),
