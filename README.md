@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./assets/profile.sh-live.gif" width="100%" alt="profile.sh --live">
+<img src="https://raw.githubusercontent.com/KrushnaKhetia/KrushnaKhetia/main/assets/profile.sh-live.gif" width="100%" alt="profile.sh --live">
 
 <br><br>
 
