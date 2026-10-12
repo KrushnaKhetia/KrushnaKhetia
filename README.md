@@ -1,9 +1,9 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/profile-live-dark.svg?v=2">
-  <source media="(prefers-color-scheme: light)" srcset="assets/profile-live-light.svg?v=2">
-  <img src="assets/profile-live-dark.svg?v=2" width="100%" alt="profile.sh --live">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/profile-live-dark.svg?v=3">
+  <source media="(prefers-color-scheme: light)" srcset="assets/profile-live-light.svg?v=3">
+  <img src="assets/profile-live-dark.svg?v=3" width="100%" alt="profile.sh --live">
 </picture>
 
 <br><br>
