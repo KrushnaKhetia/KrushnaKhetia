@@ -164,7 +164,11 @@ def portrait_art(theme: str, color: str) -> tuple[str, str]:
     rng = np.random.default_rng(314159)
     if len(portrait) > 18000:
         portrait = portrait[rng.choice(len(portrait), 18000, replace=False)]
-    portrait += np.array([74, 154], dtype=np.float32)
+    # Leave a small, even inset inside the square VISUAL.MAP frame. The raw
+    # 300x340 mask used to sit flush against the frame edge and looked cropped.
+    inset_scale = 0.90
+    inset = np.array([(340 - 300 * inset_scale) / 2, (340 - 340 * inset_scale) / 2])
+    portrait = portrait * inset_scale + np.array([74, 154], dtype=np.float32) + inset
 
     # Fade and drift 94 small bands of the portrait as the travelling pixels
     # form each logo, matching the dissolve in the supplied reference banner.
