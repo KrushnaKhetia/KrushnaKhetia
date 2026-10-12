@@ -38,7 +38,7 @@ THEMES = {
 
 def render(theme_name: str, avatar_uri: str) -> str:
     t = THEMES[theme_name]
-    portrait = portrait_path(theme_name)
+    portrait, travellers = portrait_art(theme_name, t["portrait"])
     lines = []
     y = 153
     for label, value in ROWS:
@@ -75,10 +75,7 @@ def render(theme_name: str, avatar_uri: str) -> str:
 <text x="49" y="111" fill="{t['chrome']}" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="13" font-weight="700" letter-spacing="1.2">VISUAL.MAP</text>
 <text x="438" y="111" text-anchor="end" fill="{t['muted']}" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="11">PROFILE / 1-BIT</text>
 <path d="M49 141h12M49 141v12M439 141h-12M439 141v12M49 539h12M49 539v-12M439 539h-12M439 539v-12" fill="none" stroke="{t['chrome']}" opacity=".55"/>
-<g clip-path="url(#photo)" shape-rendering="crispEdges"><path d="{portrait}" fill="none" stroke="{t['portrait']}" stroke-width="1"/><rect x="74" y="154" width="340" height="340" fill="url(#scan)" opacity=".25"/>
-  <g class="logo" opacity="0"><path d="M244 190l24 14v28l-24 14-24-14v-28zM244 176v14m0 56v14m-37-53-12-7m98 56-12-7m-74 0-12 7m98-56-12 7"/><animate attributeName="opacity" values="0;0;.8;.8;0" keyTimes="0;.18;.23;.36;.42" dur="8s" repeatCount="indefinite"/></g>
-  <g class="logo" opacity="0"><path d="M211 263l-29-26 29-26m66 0 29 26-29 26m-20-72-27 92"/><animate attributeName="opacity" values="0;0;.9;.9;0" keyTimes="0;.42;.47;.61;.67" dur="8s" repeatCount="indefinite"/></g>
-  <g opacity="0" fill="{t['chrome']}"><path d="M244 186l12 39 40 0-32 23 12 39-32-24-32 24 12-39-32-23h40z"/><animate attributeName="opacity" values="0;0;.9;.9;0" keyTimes="0;.67;.72;.86;.92" dur="8s" repeatCount="indefinite"/></g>
+<g clip-path="url(#photo)" shape-rendering="crispEdges"><path d="{portrait}" fill="none" stroke="{t['portrait']}" stroke-width="1"/><g>{travellers}</g><rect x="74" y="154" width="340" height="340" fill="url(#scan)" opacity=".25"/>
   <rect x="74" y="154" width="340" height="340" fill="none" stroke="{t['line']}"/></g>
 <text x="58" y="551" fill="{t['muted']}" font-family="ui-monospace,SFMono-Regular,Consolas,monospace" font-size="10">PROFILE IMAGE · KRUSHNAKHETIA</text>
 <rect x="474" y="88" width="672" height="472" rx="6" fill="{t['panel2']}" stroke="{t['line']}"/><path d="M474 124H1146" stroke="{t['line']}"/>
@@ -100,8 +97,10 @@ def main() -> None:
         print(f"Wrote {out.relative_to(ROOT)}")
 
 
-def portrait_path(theme: str) -> str:
-    """Dither the public profile avatar into compact terminal-style dot paths."""
+def portrait_art(theme: str, color: str) -> tuple[str, str]:
+    """Dither the avatar and animate a sample of its dots into tech silhouettes."""
+    from PIL import ImageDraw
+
     image = Image.open(AVATAR).convert("RGB")
     side = min(image.size)
     left = (image.width - side) // 2
@@ -140,7 +139,47 @@ def portrait_path(theme: str) -> str:
                 start = x
             previous = x
         paths.append(f"M{74 + start} {154 + y}h{previous - start + 1}")
-    return "".join(paths)
+    source = np.column_stack(np.where(dots)[::-1]).astype(np.float32)
+    count = min(900, len(source))
+    source = source[np.linspace(0, len(source) - 1, count, dtype=int)]
+    rng = np.random.default_rng(314159)
+    targets = []
+    for kind in ("gear", "code", "star"):
+        mask = Image.new("L", (300, 340), 0)
+        draw = ImageDraw.Draw(mask)
+        if kind == "gear":
+            draw.regular_polygon((150, 170, 104), 12, rotation=15, fill=255)
+            draw.ellipse((118, 138, 182, 202), fill=0)
+        elif kind == "code":
+            draw.line([(112, 105), (58, 170), (112, 235)], fill=255, width=18, joint="curve")
+            draw.line([(188, 105), (242, 170), (188, 235)], fill=255, width=18, joint="curve")
+            draw.line([(165, 84), (135, 256)], fill=255, width=18)
+        else:
+            star = []
+            for i in range(10):
+                angle = -np.pi / 2 + i * np.pi / 5
+                radius = 108 if i % 2 == 0 else 48
+                star.append((150 + np.cos(angle) * radius, 170 + np.sin(angle) * radius))
+            draw.polygon(star, fill=255)
+        cloud = np.column_stack(np.where(np.asarray(mask) > 0)[::-1]).astype(np.float32)
+        chosen = cloud[rng.choice(len(cloud), count, replace=len(cloud) < count)]
+        chosen = chosen[np.lexsort((chosen[:, 0], chosen[:, 1]))]
+        targets.append(chosen)
+    source = source[np.lexsort((source[:, 0], source[:, 1]))]
+    frames = [source, source, targets[0], targets[0], targets[1], targets[1],
+              targets[2], targets[2], source, source]
+    key_times = "0;.2;.3;.4;.5;.6;.7;.8;.9;1"
+    animated = []
+    for i in range(count):
+        x_values = ";".join(f"{74 + point[i, 0]:.1f}" for point in frames)
+        y_values = ";".join(f"{154 + point[i, 1]:.1f}" for point in frames)
+        animated.append(
+            f'<circle r=".72" fill="{color}"><animate attributeName="cx" begin="3s" '
+            f'dur="10s" repeatCount="indefinite" keyTimes="{key_times}" values="{x_values}"/>'
+            f'<animate attributeName="cy" begin="3s" dur="10s" repeatCount="indefinite" '
+            f'keyTimes="{key_times}" values="{y_values}"/></circle>'
+        )
+    return "".join(paths), "".join(animated)
 
 
 if __name__ == "__main__":
