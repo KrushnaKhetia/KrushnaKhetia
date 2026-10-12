@@ -5,10 +5,10 @@ import math
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageOps
+from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 
 ROOT = Path(__file__).resolve().parents[1]
-AVATAR = ROOT / "assets/avatar.png"
+AVATAR = ROOT / "assets/krushna-cutout.png"
 WIDTH, HEIGHT = 1180, 610
 ROWS = [
     ("Subject", "Krushna Khetia"),
@@ -124,22 +124,35 @@ def portrait_art(theme: str, color: str) -> tuple[str, str]:
     """Dither the avatar and animate a sample of its dots into tech silhouettes."""
     from PIL import ImageDraw
 
-    image = Image.open(AVATAR).convert("RGB")
-    # Frame the person tightly so the snowy scenery does not turn into a large
-    # square field of dither dots like the uncropped account avatar.
-    image = image.crop((65, 65, 395, 439)).resize((300, 340), Image.Resampling.LANCZOS)
-    matte = Image.new("L", (300, 340), 0)
-    ImageDraw.Draw(matte).polygon(
-        [(122, 22), (158, 18), (196, 34), (214, 70), (211, 111), (229, 143),
-         (268, 163), (292, 198), (300, 261), (300, 340), (0, 340), (0, 261),
-         (12, 198), (43, 163), (81, 143), (89, 111), (84, 70), (99, 34)],
-        fill=255,
+    # The supplied photo already has a real alpha cutout. Fit the complete
+    # subject into the 300×340 dither canvas, rather than approximating it with
+    # a polygon and clipping the shoulders at the frame border.
+    source = Image.open(AVATAR).convert("RGBA")
+    bounds = source.getchannel("A").getbbox()
+    if bounds is None:
+        raise SystemExit("Profile image must include a visible subject")
+    subject = source.crop(bounds)
+    scale = min(282 / subject.width, 320 / subject.height)
+    subject = subject.resize(
+        (round(subject.width * scale), round(subject.height * scale)),
+        Image.Resampling.LANCZOS,
     )
-    visible = np.asarray(matte) > 0
-    mask = matte
-    gray_image = ImageOps.grayscale(image)
-    prepared = ImageOps.equalize(gray_image, mask=mask)
-    prepared = ImageOps.autocontrast(prepared, mask=mask, cutoff=1)
+    crop = Image.new("RGBA", (300, 340), (0, 0, 0, 0))
+    crop.alpha_composite(subject, ((300 - subject.width) // 2, 340 - subject.height - 10))
+    alpha = np.asarray(crop.getchannel("A"), dtype=np.float32) / 255.0
+    visible = alpha > 0.08
+    mask = Image.fromarray(np.uint8(visible * 255), "L")
+    rgb = crop.convert("RGB")
+    if theme == "dark":
+        luminance = np.asarray(ImageOps.grayscale(rgb), dtype=np.float32)
+        prepared = Image.fromarray(np.uint8(np.clip(luminance * alpha, 0, 255)), "L")
+    else:
+        white = Image.new("RGBA", crop.size, "white")
+        white.alpha_composite(crop)
+        prepared = ImageOps.grayscale(white.convert("RGB"))
+    prepared = ImageOps.equalize(prepared, mask=mask)
+    prepared = ImageEnhance.Contrast(prepared).enhance(1.35)
+    prepared = prepared.filter(ImageFilter.UnsharpMask(radius=2, percent=175, threshold=1))
     values = np.asarray(prepared, dtype=np.float32) / 255.0
     dots = np.zeros(values.shape, dtype=bool)
     for y in range(values.shape[0]):
@@ -164,11 +177,7 @@ def portrait_art(theme: str, color: str) -> tuple[str, str]:
     rng = np.random.default_rng(314159)
     if len(portrait) > 18000:
         portrait = portrait[rng.choice(len(portrait), 18000, replace=False)]
-    # Leave a small, even inset inside the square VISUAL.MAP frame. The raw
-    # 300x340 mask used to sit flush against the frame edge and looked cropped.
-    inset_scale = 0.90
-    inset = np.array([(340 - 300 * inset_scale) / 2, (340 - 340 * inset_scale) / 2])
-    portrait = portrait * inset_scale + np.array([74, 154], dtype=np.float32) + inset
+    portrait += np.array([74, 154], dtype=np.float32)
 
     # Fade and drift 94 small bands of the portrait as the travelling pixels
     # form each logo, matching the dissolve in the supplied reference banner.
