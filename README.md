@@ -1,6 +1,10 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/KrushnaKhetia/KrushnaKhetia/main/assets/profile.sh-live.gif" width="100%" alt="profile.sh --live">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/profile-live-dark.svg?v=1">
+  <source media="(prefers-color-scheme: light)" srcset="assets/profile-live-light.svg?v=1">
+  <img src="assets/profile-live-dark.svg?v=1" width="100%" alt="profile.sh --live">
+</picture>
 
 <br><br>
 
