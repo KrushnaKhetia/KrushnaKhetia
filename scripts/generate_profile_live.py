@@ -105,12 +105,19 @@ def portrait_art(theme: str, color: str) -> tuple[str, str]:
     # Frame the person tightly so the snowy scenery does not turn into a large
     # square field of dither dots like the uncropped account avatar.
     image = image.crop((65, 65, 395, 439)).resize((300, 340), Image.Resampling.LANCZOS)
-    rgb = np.asarray(image, dtype=np.float32) / 255.0
-    gray = np.asarray(ImageOps.grayscale(image), dtype=np.float32) / 255.0
-    saturation = rgb.max(axis=2) - rgb.min(axis=2)
-    visible = (gray < .74) | (saturation > .17)
-    canvas = gray.copy()
-    values = np.asarray(canvas, dtype=np.float32) / 255.0
+    matte = Image.new("L", (300, 340), 0)
+    ImageDraw.Draw(matte).polygon(
+        [(122, 22), (158, 18), (196, 34), (214, 70), (211, 111), (229, 143),
+         (268, 163), (292, 198), (300, 261), (300, 340), (0, 340), (0, 261),
+         (12, 198), (43, 163), (81, 143), (89, 111), (84, 70), (99, 34)],
+        fill=255,
+    )
+    visible = np.asarray(matte) > 0
+    mask = matte
+    gray_image = ImageOps.grayscale(image)
+    prepared = ImageOps.equalize(gray_image, mask=mask)
+    prepared = ImageOps.autocontrast(prepared, mask=mask, cutoff=1)
+    values = np.asarray(prepared, dtype=np.float32) / 255.0
     dots = np.zeros(values.shape, dtype=bool)
     for y in range(values.shape[0]):
         xs = range(values.shape[1]) if y % 2 == 0 else range(values.shape[1] - 1, -1, -1)
@@ -129,6 +136,7 @@ def portrait_art(theme: str, color: str) -> tuple[str, str]:
                 values[y + 1, x] += error * 5 / 16
                 if 0 <= nx < values.shape[1]:
                     values[y + 1, nx] += error / 16
+    dots &= visible
     paths = []
     for y, row in enumerate(dots):
         xs = np.flatnonzero(row)
@@ -141,7 +149,6 @@ def portrait_art(theme: str, color: str) -> tuple[str, str]:
                 start = x
             previous = x
         paths.append(f"M{74 + start} {154 + y}h{previous - start + 1}")
-    dots &= visible
     source = np.column_stack(np.where(dots)[::-1]).astype(np.float32)
     count = min(900, len(source))
     source = source[np.linspace(0, len(source) - 1, count, dtype=int)]
